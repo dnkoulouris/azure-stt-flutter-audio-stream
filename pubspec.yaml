@@ -1,0 +1,154 @@
+name: azure_stt_flutter
+description: "A Flutter package for real-time Speech-to-Text transcription using Microsoft Azure Cognitive Services with BLoC/Cubit pattern. Supports Mobile, Desktop, and Web platforms"
+version: 0.0.1
+homepage: https://github.com/scognito/azure-stt-flutter
+repository: https://github.com/scognito/azure-stt-flutter
+issue_tracker: https://github.com/scognito/azure-stt-flutter/issues
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  uuid: ^4.5.3
+  http: ^1.6.0
+  web_socket_channel: ^3.0.3
+  record: ^6.2.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  melos: ^7.4.0
+  dart_code_metrics_presets: ^2.29.0
+
+melos:
+
+  scripts:
+    format: melos exec "dart format . -l 100"
+
+    unlock: >
+      find "${1:-.}" -type f -name 'pubspec.lock' -print -delete
+
+    check_formatting: melos exec "dart format . -l 100 --set-exit-if-changed"
+
+    check:
+      run: |
+        melos analyze && melos dcm_analyze && melos dcm && melos test
+
+    analyze:
+      run: >
+        melos exec -c 2 -- \
+          flutter analyze --fatal-warnings --fatal-infos .
+      description: |
+        Run `flutter analyze` in all packages failing on info and warnings too.
+
+    dcm:
+      run: |
+        dcm run \
+        --code-duplication --exclude-overrides --unused-code --unused-files --unused-l10n \
+        --dependencies --parameters --reporter=${DCM_REPORTER:-console} \
+        lib
+
+    dcm_analyze:
+      run: |
+        dcm analyze --reporter=${DCM_REPORTER:-console} --no-congratulate \
+        lib
+
+    fix: >
+      melos exec --\
+        dart fix --apply
+
+    dcm_fix:
+      run: |
+        melos exec -c 1 -- \
+          dcm fix lib
+
+    dcm_format:
+      run: |
+        melos exec -c 1 -- \
+          dcm format lib
+
+    dcm_unused:
+      run: |
+        melos exec -c 1 -- \
+          dcm check-unused-code lib
+
+    dcm_duplicate:
+      run: |
+        melos exec -c 1 -- \
+          dcm check-code-duplication lib
+
+    dcm_metrics:
+      run: |
+        melos exec -c 1 -- \
+          dcm calculate-metrics lib
+
+    dcm_deps:
+      run: |
+        melos exec -c 1 -- \
+          dcm check-dependencies lib
+
+    dcm_params:
+      run: |
+        melos exec -c 1 -- \
+          dcm check-parameters lib
+
+    test_package:
+      run: >
+        melos exec -c 5 --fail-fast -- \
+          flutter test --dart-define=TESTING=true
+      select-package:
+        dir-exists:
+          - test
+
+    test_package_with_coverage:
+      run: >
+        melos exec -c 2 --fail-fast -- \
+          flutter test --coverage --dart-define=TESTING=true
+      select-package:
+        dir-exists:
+          - test
+
+    test:
+      run: melos run test_package --no-select
+      description: Run test for all packages
+
+    test_with_coverage:
+      run: melos run test_package_with_coverage --no-select
+
+    clean_up_coverage: >
+      melos exec --scope=presentation  -- \
+        lcov --remove coverage/lcov.info 'lib/swagger/*' 'lib/src/models/*' 'lib/l10n/*' 'lib/src/assembly/*' --ignore-errors unused --ignore-errors empty -o coverage/lcov.info
+
+    quality_checks:
+      run: melos bootstrap && melos run check_formatting && melos run analyze && melos run test
+      description: Run all static analysis checks and tests
+
+    clean:deep: >
+      melos exec -- \
+        flutter clean
+
+    clean:cache: >
+      melos exec --scope=. -- \
+            dart run build_runner clean && dart run build_runner build -d
+
+    postclean: >
+      melos exec -- \
+        rm -rf ./build ./android/.gradle ./ios/.symlinks ./ios/Pods ./ios/Podfile.lock ./.dart-tool/build
+
+    check_deps: >
+      melos exec --\
+        flutter pub outdated
+
+    update_deps: >
+      melos exec --\
+        flutter pub upgrade --tighten
+
+    update_major_deps: >
+      melos exec --\
+        flutter pub upgrade --major-versions --tighten
+
+flutter:
