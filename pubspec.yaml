@@ -1,6 +1,6 @@
 name: azure_stt_flutter
 description: "A Flutter package for real-time Speech-to-Text transcription using Microsoft Azure Cognitive Services with BLoC/Cubit pattern. Supports Mobile, Desktop, and Web platforms"
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/scognito/azure-stt-flutter
 repository: https://github.com/scognito/azure-stt-flutter
 issue_tracker: https://github.com/scognito/azure-stt-flutter/issues
@@ -119,10 +119,6 @@ melos:
     test_with_coverage:
       run: melos run test_package_with_coverage --no-select
 
-    clean_up_coverage: >
-      melos exec --scope=presentation  -- \
-        lcov --remove coverage/lcov.info 'lib/swagger/*' 'lib/src/models/*' 'lib/l10n/*' 'lib/src/assembly/*' --ignore-errors unused --ignore-errors empty -o coverage/lcov.info
-
     quality_checks:
       run: melos bootstrap && melos run check_formatting && melos run analyze && melos run test
       description: Run all static analysis checks and tests
@@ -134,21 +130,5 @@ melos:
     clean:cache: >
       melos exec --scope=. -- \
             dart run build_runner clean && dart run build_runner build -d
-
-    postclean: >
-      melos exec -- \
-        rm -rf ./build ./android/.gradle ./ios/.symlinks ./ios/Pods ./ios/Podfile.lock ./.dart-tool/build
-
-    check_deps: >
-      melos exec --\
-        flutter pub outdated
-
-    update_deps: >
-      melos exec --\
-        flutter pub upgrade --tighten
-
-    update_major_deps: >
-      melos exec --\
-        flutter pub upgrade --major-versions --tighten
 
 flutter:
