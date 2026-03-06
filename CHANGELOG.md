@@ -1,3 +1,6 @@
+# 0.0.4
+- Changed screenshots
+
 # 0.0.3
 - Added screenshots
 
