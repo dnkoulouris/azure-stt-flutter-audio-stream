@@ -14,12 +14,10 @@ A Flutter package for real-time Speech-to-Text (transcription) using Microsoft A
 
 An example app is included in the package:
 
-<table>
-    <tr>
-        <td><a href="screenshots/image-01.jpg" target="_blank"><img alt="Screen 1" src="screenshots/image-01.jpg" width="300"/></a></td>
-        <td><a href="screenshots/image-02.jpg" target="_blank"><img alt="Screeb 2" src="screenshots/image-02.jpg" width="300"/></a></td>
-    </tr>
-</table>
+<p >
+  <img src="screenshots/image-01.jpg" alt="Screen 1" width="300"/>
+  <img src="screenshots/image-02.jpg" alt="Screen 2" width="300"/>
+</p>
 
 ## Getting Started
 
