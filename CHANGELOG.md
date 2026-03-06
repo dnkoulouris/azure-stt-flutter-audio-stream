@@ -1,7 +1,9 @@
+# 0.0.3
+- Added screenshots
+
 # 0.0.2
 
 - Minor updates to documentation
-- Added screenshots
 
 # 0.0.1
 
