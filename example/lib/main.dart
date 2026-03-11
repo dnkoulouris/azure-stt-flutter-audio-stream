@@ -31,13 +31,24 @@ class _MyAppState extends State<MyApp> {
     _azureSpeechToText?.dispose();
 
     List<String> languages = [_currentLanguage];
-    String languageIdMode = 'AtStart';
+    LanguageIdMode languageIdMode = .atStart;
 
     if (_currentLanguage == 'autodetect') {
       languages = ['it-IT', 'es-ES', 'nl-NL', 'en-US'];
     } else if (_currentLanguage == 'continuous') {
-      languages = ['en-US', 'it-IT', 'es-ES', 'nl-NL', 'mk-MK', 'de-DE', 'pt-PT', 'nb-NO', 'sv-SE', 'uk-UA'];
-      languageIdMode = 'Continuous';
+      languages = [
+        'en-US',
+        'it-IT',
+        'es-ES',
+        'nl-NL',
+        'mk-MK',
+        'de-DE',
+        'pt-PT',
+        'nb-NO',
+        'sv-SE',
+        'uk-UA',
+      ];
+      languageIdMode = .continuous;
     }
 
     _azureSpeechToText = AzureSpeechToText(
@@ -45,7 +56,7 @@ class _MyAppState extends State<MyApp> {
       region: dotenv.env['AZURE_REGION']!,
       languages: languages,
       languageIdMode: languageIdMode,
-      debug: true,
+      debug: false,
     );
   }
 
@@ -90,17 +101,14 @@ class TranscriptionPage extends StatelessWidget {
   final String selectedLanguage;
   final ValueChanged<String?> onLanguageChanged;
 
-  const TranscriptionPage({
-    required this.selectedLanguage,
-    required this.onLanguageChanged,
-  });
+  const TranscriptionPage({required this.selectedLanguage, required this.onLanguageChanged});
 
   static const _languages = {
     'en-US': 'English',
     'it-IT': 'Italian',
     'nl-NL': 'Dutch',
     'es-ES': 'Spanish',
-    'autodetect': 'AutoDetect (IT, ES, NL, EN)',
+    'autodetect': 'At Start (IT, ES, NL, EN)',
     'continuous': 'Continuous (10 Languages)',
   };
 
@@ -147,16 +155,11 @@ class TranscriptionPage extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(24.0),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 24,
-                                  horizontal: 24,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
                                 decoration: BoxDecoration(
                                   color: Colors.black.withAlpha(153),
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: Colors.white.withAlpha(51),
-                                  ),
+                                  border: Border.all(color: Colors.white.withAlpha(51)),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withAlpha(51),
@@ -168,18 +171,6 @@ class TranscriptionPage extends StatelessWidget {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    if (state.detectedLanguage != null)
-                                       Padding(
-                                         padding: const EdgeInsets.only(bottom: 8.0),
-                                         child: Text(
-                                           'Detected: ${state.detectedLanguage}',
-                                           style: TextStyle(
-                                             fontSize: 14,
-                                             color: Colors.white.withAlpha(150),
-                                             fontStyle: FontStyle.italic,
-                                           ),
-                                         ),
-                                       ),
                                     Text(
                                       state.text,
                                       textAlign: TextAlign.center,
@@ -208,12 +199,8 @@ class TranscriptionPage extends StatelessWidget {
                           azureStt.startListening();
                         }
                       },
-                      backgroundColor: state.isListening
-                          ? Colors.redAccent
-                          : Colors.white,
-                      foregroundColor: state.isListening
-                          ? Colors.white
-                          : Colors.blueAccent,
+                      backgroundColor: state.isListening ? Colors.redAccent : Colors.white,
+                      foregroundColor: state.isListening ? Colors.white : Colors.blueAccent,
                       child: Icon(state.isListening ? Icons.stop : Icons.mic),
                     ),
                   ),
@@ -234,11 +221,7 @@ class TranscriptionPage extends StatelessWidget {
         children: [
           const Text(
             'Azure STT',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -254,10 +237,7 @@ class TranscriptionPage extends StatelessWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 16),
                 onChanged: isListening ? null : onLanguageChanged,
                 items: _languages.entries.map((entry) {
-                  return DropdownMenuItem<String>(
-                    value: entry.key,
-                    child: Text(entry.value),
-                  );
+                  return DropdownMenuItem<String>(value: entry.key, child: Text(entry.value));
                 }).toList(),
               ),
             ),

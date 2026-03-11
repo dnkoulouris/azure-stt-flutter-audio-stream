@@ -1,37 +1,63 @@
 # Azure STT Flutter
 
-A Flutter package for real-time Speech-to-Text (transcription) using Microsoft Azure Cognitive Services. This library provides a reactive, stream-based API built with the BLoC/Cubit pattern to easily integrate speech recognition into your Flutter applications.
+A Flutter package for real-time Speech-to-Text (transcription) using Microsoft Azure Cognitive Services. This library provides a reactive, stream-based API built to easily integrate speech recognition into your Flutter applications.
 
 ## Features
 
 *   **Real-time Transcription**: Receive intermediate results (hypothesis) and finalized text as the user speaks.
 *   **Cross-Platform**: Supports Mobile (iOS, Android), Desktop (macOS, Windows, Linux), and Web.
 *   **Auto-Silence Timeout**: Automatically clears the text after a configurable period of silence.
-*   **Multi-Language**: Supports all languages provided by Azure Speech Services.
+*   **Multi-Language & LID**: Supports single-language recognition and multi-language identification (LID).
 
+## Language Identification (LID) Modes
 
-## Example app
+The library supports three main ways to handle spoken languages. Choosing the right mode is critical for performance and accuracy.
 
-An example app is included in the package:
+### 1. Single Language (Fastest)
+This is the **recommended mode for fastest subtitles and real-time feedback**. The engine doesn't spend time identifying the language; it starts transcribing immediately using the provided locale.
 
-<p>
-  <img src="https://raw.githubusercontent.com/scognito/azure-stt-flutter/main/screenshots/image-01.jpg" width="300">
-  <img src="https://raw.githubusercontent.com/scognito/azure-stt-flutter/main/screenshots/image-02.jpg" width="300">
-</p>
+**How to use:** Provide only one language in the list.
+```dart
+final azureStt = AzureSpeechToText(
+  subscriptionKey: '...',
+  region: '...',
+  languages: ['en-US'], // Single language
+);
+```
+
+### 2. At-Start Detection
+The service identifies the language(s) talked at the beginning of the audio and then transcribes using that language for the rest of the session. It supports up to **4 candidate languages**.
+
+**Note**: The first few seconds of audio are used for identification, which might introduce a slight initial delay in transcription.
+
+**How to use:** Provide up to 4 languages and set `languageIdMode` to 'AtStart' (default).
+```dart
+final azureStt = AzureSpeechToText(
+  subscriptionKey: '...',
+  region: '...',
+  languages: ['en-US', 'it-IT', 'es-ES', 'fr-FR'],
+  languageIdMode: .atStart, // Default
+);
+```
+
+### 3. Continuous Detection
+The service continuously monitors the audio and can switch the transcription language mid-stream if the speaker changes. It supports up to **10 candidate languages**.
+
+**Note**: This mode is the most flexible but requires the service to constantly evaluate the language, which is best for multi-lingual conversations.
+
+**How to use:** Provide up to 10 languages and set `languageIdMode` to 'Continuous'.
+```dart
+final azureStt = AzureSpeechToText(
+  subscriptionKey: '...',
+  region: '...',
+  languages: ['en-US', 'it-IT', 'es-ES', 'de-DE', 'pt-PT', 'nb-NO', 'sv-SE', 'uk-UA'],
+  languageIdMode: .continuous,
+);
+```
 
 ## Getting Started
 
-### 1. Dependencies
-
-Add the package to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  azure_stt_flutter:
-    path: ./ # Or git url
-```
-
-### 2. Permissions
+### 1. Permissions
 
 **Android**
 
@@ -64,20 +90,20 @@ Add the microphone entitlement to `macos/Runner/DebugProfile.entitlements` and `
 
 ### Initialization
 
-Initialize the `AzureSpeechToText` instance. You need a **Subscription Key**
+Initialize the `AzureSpeechToText` instance. 
 
 ```dart
 final azureStt = AzureSpeechToText(
   subscriptionKey: 'YOUR_AZURE_KEY',
-  region: 'westeurope', // or other supported region
-  language: 'en-US',
+  region: 'westeurope',
+  languages: ['en-US'],
   textClearTimeout: const Duration(seconds: 2),
 );
 ```
 
 ### Listening to Updates
 
-The library exposes a `transcriptionStateStream` which emits `TranscriptionState` updates.
+The library exposes a `transcriptionStateStream` which emits `TranscriptionState` updates. When using LID, the `detectedLanguage` field will contain the identified locale.
 
 ```dart
 StreamBuilder<TranscriptionState>(
@@ -88,6 +114,8 @@ StreamBuilder<TranscriptionState>(
 
     return Column(
       children: [
+        if (state.detectedLanguage != null)
+          Text('Language: ${state.detectedLanguage}'),
         // Combined text (finalized + intermediate)
         Text(state.text),
 
@@ -128,12 +156,8 @@ An immutable object containing:
 *   **`intermediateText`**: The real-time, changing text (hypothesis) that Azure sends while you are speaking.
 *   **`finalizedText`**: A list of completed sentences (phrases) that Azure has confirmed.
 *   **`text`**: A helper field that combines finalized and intermediate text for easier display.
+*   **`detectedLanguage`**: The BCP-47 locale detected by the service (when using LID).
 *   **`isListening`**: A boolean indicating if the microphone is active.
-
-### Data Flow
-1.  **Microphone**: Captures audio as a stream of bytes.
-2.  **Service**: `AzureSttService` listens to the mic stream and forwards audio chunks to Azure via WebSocket.
-3.  **Azure**: Sends back JSON events (Hypothesis or Phrase).
 
 ## Authentication
 

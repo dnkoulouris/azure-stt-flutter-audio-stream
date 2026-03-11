@@ -1,3 +1,7 @@
+# 0.0.5
+- Added support for Continuous or At-Start modes
+- **BREAKING CHANGE** : the String parameter "language" is now a list of String named "languages" 
+
 # 0.0.4
 - Changed screenshots
 

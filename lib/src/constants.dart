@@ -14,4 +14,5 @@ class Constants {
   static const String requestId = 'X-RequestId';
   static const String requestStreamId = 'X-StreamId';
   static const String requestTimestamp = 'X-Timestamp';
+  static const String lidEnabled = 'lidEnabled';
 }

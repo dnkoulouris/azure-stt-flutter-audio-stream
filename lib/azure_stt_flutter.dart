@@ -1,4 +1,4 @@
-// ignore_for_file: prefer-match-file-name
+// ignore_for_file: prefer-match-file-name, unused-code
 
 import 'dart:async';
 
@@ -18,7 +18,7 @@ class AzureSpeechToText {
     required String subscriptionKey,
     required String region,
     List<String> languages = const [Constants.defaultLang],
-    String languageIdMode = 'AtStart', // 'AtStart' or 'Continuous'
+    LanguageIdMode languageIdMode = .atStart,
     bool debug = false,
     Duration textClearTimeout = const Duration(seconds: 1),
   }) {
@@ -54,3 +54,5 @@ class AzureSpeechToText {
     _transcriptionCubit.close();
   }
 }
+
+enum LanguageIdMode { atStart, continuous}
