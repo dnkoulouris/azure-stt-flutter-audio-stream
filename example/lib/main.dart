@@ -30,14 +30,21 @@ class _MyAppState extends State<MyApp> {
   void _initAzureStt() {
     _azureSpeechToText?.dispose();
 
-    final List<String> languages = _currentLanguage == 'autodetect'
-        ? ['it-IT', 'es-ES', 'nl-NL', 'en-US']
-        : [_currentLanguage];
+    List<String> languages = [_currentLanguage];
+    String languageIdMode = 'AtStart';
+
+    if (_currentLanguage == 'autodetect') {
+      languages = ['it-IT', 'es-ES', 'nl-NL', 'en-US'];
+    } else if (_currentLanguage == 'continuous') {
+      languages = ['en-US', 'it-IT', 'es-ES', 'nl-NL', 'mk-MK', 'de-DE', 'pt-PT', 'nb-NO', 'sv-SE', 'uk-UA'];
+      languageIdMode = 'Continuous';
+    }
 
     _azureSpeechToText = AzureSpeechToText(
       subscriptionKey: dotenv.env['AZURE_SUBSCRIPTION_KEY']!,
       region: dotenv.env['AZURE_REGION']!,
       languages: languages,
+      languageIdMode: languageIdMode,
       debug: true,
     );
   }
@@ -94,6 +101,7 @@ class TranscriptionPage extends StatelessWidget {
     'nl-NL': 'Dutch',
     'es-ES': 'Spanish',
     'autodetect': 'AutoDetect (IT, ES, NL, EN)',
+    'continuous': 'Continuous (10 Languages)',
   };
 
   @override

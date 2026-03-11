@@ -18,6 +18,7 @@ class AzureSpeechToText {
     required String subscriptionKey,
     required String region,
     List<String> languages = const [Constants.defaultLang],
+    String languageIdMode = 'AtStart', // 'AtStart' or 'Continuous'
     bool debug = false,
     Duration textClearTimeout = const Duration(seconds: 1),
   }) {
@@ -28,6 +29,7 @@ class AzureSpeechToText {
       subscriptionKey: subscriptionKey,
       region: region,
       languages: languages,
+      languageIdMode: languageIdMode,
       debug: debug,
       cubit: _transcriptionCubit,
       micService: _microphoneService,

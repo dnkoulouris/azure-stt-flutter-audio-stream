@@ -21,6 +21,7 @@ class AzureSttService {
   final String _subscriptionKey;
   final String _region;
   final List<String> _languages;
+  final String _languageIdMode;
   final bool _debug;
   final TranscriptionCubit _cubit;
   final MicrophoneService _micService;
@@ -38,6 +39,7 @@ class AzureSttService {
     required String subscriptionKey,
     required String region,
     List<String> languages = const [Constants.defaultLang],
+    String languageIdMode = 'AtStart',
     bool debug = false,
     required TranscriptionCubit cubit,
     required MicrophoneService micService,
@@ -45,6 +47,7 @@ class AzureSttService {
   }) : _subscriptionKey = subscriptionKey,
        _region = region,
        _languages = languages,
+       _languageIdMode = languageIdMode,
        _cubit = cubit,
        _debug = debug,
        _micService = micService,
@@ -81,6 +84,8 @@ class AzureSttService {
       } else {
         queryParams[Constants.language] = _languages.isNotEmpty ? _languages.first : Constants.defaultLang;
       }
+
+      final endpointVersion = _languageIdMode == 'Continuous' ? '2' : '1';
 
       if (kIsWeb) {
         queryParams[Constants.authKey] = _subscriptionKey;
@@ -124,7 +129,7 @@ class AzureSttService {
         cancelOnError: true,
       );
 
-      _sendSpeechConfig(requestId);
+      _sendSpeechConfig(requestId, endpointVersion);
       _sendSpeechContext(requestId);
 
       final wavHeader = _getWavHeader();
@@ -262,7 +267,7 @@ class AzureSttService {
     sendSpeechMessage(message, _channel!);
   }
 
-  void _sendSpeechConfig(String requestId) {
+  void _sendSpeechConfig(String requestId, String endpointVersion) {
     final payload = {
       "recognition": "conversation",
       "context": {
@@ -296,7 +301,7 @@ class AzureSttService {
     if (_languages.length > 1) {
       payload["languageId"] = {
         "languages": _languages,
-        "mode": "DetectAtAudioStart",
+        "mode": _languageIdMode == 'Continuous' ? 'DetectContinuous' : 'DetectAtAudioStart',
         "onSuccess": { "action": "Recognize" },
         "onUnknown": { "action": "None" },
         "priority": "PrioritizeLatency"
