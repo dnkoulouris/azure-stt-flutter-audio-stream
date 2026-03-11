@@ -29,10 +29,15 @@ class _MyAppState extends State<MyApp> {
 
   void _initAzureStt() {
     _azureSpeechToText?.dispose();
+
+    final List<String> languages = _currentLanguage == 'autodetect'
+        ? ['it-IT', 'es-ES', 'nl-NL', 'en-US']
+        : [_currentLanguage];
+
     _azureSpeechToText = AzureSpeechToText(
       subscriptionKey: dotenv.env['AZURE_SUBSCRIPTION_KEY']!,
       region: dotenv.env['AZURE_REGION']!,
-      language: _currentLanguage,
+      languages: languages,
       debug: true,
     );
   }
@@ -54,6 +59,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_azureSpeechToText == null) return const SizedBox.shrink();
+
     return Provider<AzureSpeechToText>.value(
       value: _azureSpeechToText!,
       child: MaterialApp(
@@ -86,7 +93,7 @@ class TranscriptionPage extends StatelessWidget {
     'it-IT': 'Italian',
     'nl-NL': 'Dutch',
     'es-ES': 'Spanish',
-    'mk-MK': 'Macedonian',
+    'autodetect': 'AutoDetect (IT, ES, NL, EN)',
   };
 
   @override
@@ -150,15 +157,32 @@ class TranscriptionPage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                child: Text(
-                                  state.text,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                    height: 1.3,
-                                  ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (state.detectedLanguage != null)
+                                       Padding(
+                                         padding: const EdgeInsets.only(bottom: 8.0),
+                                         child: Text(
+                                           'Detected: ${state.detectedLanguage}',
+                                           style: TextStyle(
+                                             fontSize: 14,
+                                             color: Colors.white.withAlpha(150),
+                                             fontStyle: FontStyle.italic,
+                                           ),
+                                         ),
+                                       ),
+                                    Text(
+                                      state.text,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

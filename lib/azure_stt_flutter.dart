@@ -17,16 +17,17 @@ class AzureSpeechToText {
   AzureSpeechToText({
     required String subscriptionKey,
     required String region,
-    String language = Constants.defaultLang,
+    List<String> languages = const [Constants.defaultLang],
     bool debug = false,
     Duration textClearTimeout = const Duration(seconds: 1),
   }) {
     _transcriptionCubit = TranscriptionCubit();
     _microphoneService = MicrophoneService();
+
     _azureSttService = AzureSttService(
       subscriptionKey: subscriptionKey,
       region: region,
-      language: language,
+      languages: languages,
       debug: debug,
       cubit: _transcriptionCubit,
       micService: _microphoneService,

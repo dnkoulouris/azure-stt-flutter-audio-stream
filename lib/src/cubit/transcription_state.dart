@@ -6,12 +6,14 @@ final class TranscriptionState extends Equatable {
   final List<String> finalizedText; // final result, with punctuation
   final String text; // returns finalizedText if present, otherwise intermediateText
   final bool isListening;
+  final String? detectedLanguage;
 
   const TranscriptionState({
     this.intermediateText = '',
     this.finalizedText = const [],
     this.text = '',
     this.isListening = false,
+    this.detectedLanguage,
   });
 
   TranscriptionState copyWith({
@@ -19,15 +21,17 @@ final class TranscriptionState extends Equatable {
     List<String>? finalizedText,
     String? text,
     bool? isListening,
+    String? detectedLanguage,
   }) {
     return TranscriptionState(
       intermediateText: intermediateText ?? this.intermediateText,
       finalizedText: finalizedText ?? this.finalizedText,
       text: text ?? this.text,
       isListening: isListening ?? this.isListening,
+      detectedLanguage: detectedLanguage ?? this.detectedLanguage,
     );
   }
 
   @override
-  List<Object?> get props => [intermediateText, finalizedText, text, isListening];
+  List<Object?> get props => [intermediateText, finalizedText, text, isListening, detectedLanguage];
 }
