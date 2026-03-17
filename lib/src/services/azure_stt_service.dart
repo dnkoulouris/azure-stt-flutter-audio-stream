@@ -20,7 +20,8 @@ import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class AzureSttService {
-  final String _subscriptionKey;
+  final String? _subscriptionKey;
+  final String? _authorizationToken;
   final String _region;
   final List<String> _languages;
   final LanguageIdMode _languageIdMode;
@@ -38,7 +39,8 @@ class AzureSttService {
   Timer? _textClearTimer;
 
   AzureSttService({
-    required String subscriptionKey,
+    String? subscriptionKey,
+    String? authorizationToken,
     required String region,
     List<String> languages = const [Constants.defaultLang],
     LanguageIdMode languageIdMode = .atStart,
@@ -47,6 +49,7 @@ class AzureSttService {
     required MicrophoneService micService,
     Duration? textClearTimeout,
   }) : _subscriptionKey = subscriptionKey,
+       _authorizationToken = authorizationToken,
        _region = region,
        _languages = languages,
        _languageIdMode = languageIdMode,
@@ -56,6 +59,8 @@ class AzureSttService {
        _textClearTimeout = textClearTimeout;
 
   Future<String?> _getAuthToken() async {
+    if (_subscriptionKey == null) return null;
+
     final uri = Uri.parse('https://$_region.api.cognitive.microsoft.com/sts/v1.0/issueToken');
     try {
       final response = await http.post(uri, headers: {Constants.authKey: _subscriptionKey});
@@ -87,15 +92,28 @@ class AzureSttService {
       }
 
       if (kIsWeb) {
-        // For web, we pass the subscription key as a query parameter
-        // as browsers don't allow setting the Ocp-Apim-Subscription-Key header.
-        queryParams[Constants.authKey] = _subscriptionKey;
+        if (_subscriptionKey != null) {
+          // For web, we pass the subscription key as a query parameter
+          // as browsers don't allow setting the Ocp-Apim-Subscription-Key header
+          queryParams[Constants.authKey] = _subscriptionKey;
+        } else if (_authorizationToken != null) {
+          // If it's a token, use the 'Authorization' query parameter with 'Bearer ' prefix
+          // This matches how the official JS SDK handles browser WebSocket connections
+          queryParams[Constants.authorization] = 'Bearer $_authorizationToken';
+        }
+
         final uri = Uri.parse(
           'wss://$_region.stt.speech.microsoft.com/stt/speech/universal/v2',
         ).replace(queryParameters: queryParams);
         _channel = getWebSocketService().connect(uri);
       } else {
-        final token = await _getAuthToken();
+        String? token;
+        if (_subscriptionKey != null) {
+          token = await _getAuthToken();
+        } else {
+          token = _authorizationToken;
+        }
+
         if (token == null) {
           _cubit.setListening(false);
           return;
@@ -284,7 +302,7 @@ class AzureSttService {
 
   void _sendSpeechConfig(String requestId) {
     final payload = {
-      "recognition": "conversation",  // It is "recognition": "conversation" in speech.config
+      "recognition": "conversation", // It is "recognition": "conversation" in speech.config
       "context": {
         "system": {"name": "FlutterSDK", "version": "1.0.0"},
         "os": kIsWeb
@@ -335,10 +353,9 @@ class AzureSttService {
         final parsed = _parseTextFrame(raw);
         final path = parsed.headers[Constants.path];
 
-        if (path != null && parsed.body != null && parsed.body!.isNotEmpty) {
-          _processJsonResponse(path, parsed.body!);
-        }
-        else {
+        if (path != null && parsed.body.isNotEmpty) {
+          _processJsonResponse(path, parsed.body);
+        } else {
           debugPrint('Text frame with no body or path: headers=${parsed.headers}');
         }
       } else if (raw is List<int>) {
@@ -346,8 +363,8 @@ class AzureSttService {
         final asString = utf8.decode(raw);
         final parsed = _parseTextFrame(asString);
         final path = parsed.headers[Constants.path];
-        if (path != null && parsed.body != null) {
-          _processJsonResponse(path, parsed.body!);
+        if (path != null) {
+          _processJsonResponse(path, parsed.body);
         }
       } else {
         debugPrint('Unknown frame type: ${raw.runtimeType}');
@@ -458,7 +475,7 @@ class AzureSttService {
 
 class _ParsedFrame {
   final Map<String, String> headers;
-  final String? body;
+  final String body;
 
-  const _ParsedFrame({required this.headers, this.body});
+  const _ParsedFrame({required this.headers, required this.body});
 }

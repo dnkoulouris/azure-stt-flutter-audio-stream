@@ -18,10 +18,18 @@ This is the **recommended mode for fastest subtitles and real-time feedback**. T
 
 **How to use:** Provide only one language in the list.
 ```dart
+// Using Subscription Key (Long-lived)
 final azureStt = AzureSpeechToText(
-  subscriptionKey: '...',
-  region: '...',
-  languages: ['en-US'], // Single language
+  subscriptionKey: 'YOUR_AZURE_KEY',
+  region: 'westeurope',
+  languages: ['en-US'],
+);
+
+// OR Using Authorization Token (Short-lived)
+final azureStt = AzureSpeechToText(
+  authorizationToken: 'YOUR_BACKEND_GENERATED_TOKEN',
+  region: 'westeurope',
+  languages: ['en-US'],
 );
 ```
 
@@ -94,7 +102,7 @@ Initialize the `AzureSpeechToText` instance.
 
 ```dart
 final azureStt = AzureSpeechToText(
-  subscriptionKey: 'YOUR_AZURE_KEY',
+  subscriptionKey: 'YOUR_AZURE_KEY', // Or authorizationToken: '...'
   region: 'westeurope',
   languages: ['en-US'],
   textClearTimeout: const Duration(seconds: 2),
@@ -169,8 +177,17 @@ The library handles authentication differently depending on the platform due to 
 
 ### Web
 *   **Limitation**: Standard browser WebSocket APIs do not allow setting custom HTTP headers during the handshake.
-*   **Solution**: The library connects to the Azure WebSocket URL but passes the authentication credentials directly in the **URL Query Parameters**.
-*   **Security Note**: Because query parameters can potentially be logged, using the **Token Fetcher** approach (generating tokens on your backend) is highly recommended for Web deployments to avoid exposing your long-lived Subscription Key.
+*   **Solution**: The library passes authentication via URL Query Parameters.
+*   **Security**: For Web, it is **strongly recommended** to use `authorizationToken` instead of `subscriptionKey`. You should generate these short-lived tokens on your backend to avoid exposing your permanent key in the browser URL.
+
+### Short lived token creation example
+```
+curl -v -X POST \
+"https://eastus.api.cognitive.microsoft.com/sts/v1.0/issueToken" \
+-H "Content-type: application/x-www-form-urlencoded" \
+-H "Content-Length: 0" \
+-H "Ocp-Apim-Subscription-Key: YourSpeechResourceKey"
+```
 
 ## License
 

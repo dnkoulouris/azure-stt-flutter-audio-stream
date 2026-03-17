@@ -15,18 +15,25 @@ class AzureSpeechToText {
   late final AzureSttService _azureSttService;
 
   AzureSpeechToText({
-    required String subscriptionKey,
+    String? subscriptionKey,
+    String? authorizationToken,
     required String region,
     List<String> languages = const [Constants.defaultLang],
     LanguageIdMode languageIdMode = .atStart,
     bool debug = false,
     Duration textClearTimeout = const Duration(seconds: 1),
   }) {
+    assert(
+      (subscriptionKey != null && authorizationToken == null) ||
+          (subscriptionKey == null && authorizationToken != null),
+      'Either subscriptionKey or authorizationToken must be provided',
+    );
     _transcriptionCubit = TranscriptionCubit();
     _microphoneService = MicrophoneService();
 
     _azureSttService = AzureSttService(
       subscriptionKey: subscriptionKey,
+      authorizationToken: authorizationToken,
       region: region,
       languages: languages,
       languageIdMode: languageIdMode,
@@ -55,4 +62,4 @@ class AzureSpeechToText {
   }
 }
 
-enum LanguageIdMode { atStart, continuous}
+enum LanguageIdMode { atStart, continuous }
