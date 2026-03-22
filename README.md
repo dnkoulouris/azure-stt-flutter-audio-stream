@@ -63,6 +63,18 @@ final azureStt = AzureSpeechToText(
 );
 ```
 
+## Example app
+
+An example app is included in the package:
+
+<p>
+  <img src="screenshots/image-01.jpg" alt="Screen 1" width="300"/>
+  <img src="screenshots/image-02.jpg" alt="Screen 2" width="300"/>
+<p>
+  <img src="https://raw.githubusercontent.com/scognito/azure-stt-flutter/main/screenshots/image-01.jpg" width="300">
+  <img src="https://raw.githubusercontent.com/scognito/azure-stt-flutter/main/screenshots/image-02.jpg" width="300">
+</p>
+
 ## Getting Started
 
 ### 1. Permissions

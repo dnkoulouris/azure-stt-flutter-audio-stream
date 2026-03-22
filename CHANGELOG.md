@@ -1,3 +1,7 @@
+# 0.0.7
+
+- Updated screenshots
+
 # 0.0.6
 - It is now possible to use short-lived token instead of subscription key using the "authorizationToken" parameter
 
