@@ -1,6 +1,7 @@
 // ignore_for_file: prefer-match-file-name, unused-code
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:azure_stt_flutter/src/constants.dart';
 import 'package:azure_stt_flutter/src/cubit/transcription_cubit.dart';
@@ -22,6 +23,7 @@ class AzureSpeechToText {
     LanguageIdMode languageIdMode = .atStart,
     bool debug = false,
     Duration textClearTimeout = const Duration(seconds: 1),
+    final Function(Uint8List audioChunk)? onAudioChunk,
   }) {
     assert(
       (subscriptionKey != null && authorizationToken == null) ||
@@ -32,6 +34,7 @@ class AzureSpeechToText {
     _microphoneService = MicrophoneService();
 
     _azureSttService = AzureSttService(
+      onAudioChunk: onAudioChunk,
       subscriptionKey: subscriptionKey,
       authorizationToken: authorizationToken,
       region: region,

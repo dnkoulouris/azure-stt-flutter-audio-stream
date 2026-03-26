@@ -28,6 +28,7 @@ class AzureSttService {
   final bool _debug;
   final TranscriptionCubit _cubit;
   final MicrophoneService _micService;
+  final Function(Uint8List audioChunk)? onAudioChunk;
 
   final crlf = '\r\n';
 
@@ -45,6 +46,7 @@ class AzureSttService {
     List<String> languages = const [Constants.defaultLang],
     LanguageIdMode languageIdMode = .atStart,
     bool debug = false,
+    this.onAudioChunk,
     required TranscriptionCubit cubit,
     required MicrophoneService micService,
     Duration? textClearTimeout,
@@ -168,7 +170,7 @@ class AzureSttService {
       _micSubscription = micStream.listen(
         (Uint8List audioChunk) {
           if (audioChunk.isEmpty) return;
-
+          onAudioChunk?.call(audioChunk);
           final audioChunkMessage = SpeechConnectionMessage(
             .binary,
             'audio',
