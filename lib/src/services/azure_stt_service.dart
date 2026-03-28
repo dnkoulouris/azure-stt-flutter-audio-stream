@@ -23,6 +23,7 @@ class AzureSttService {
   final String? _subscriptionKey;
   final String? _authorizationToken;
   final String _region;
+  final String? customDeploymentUrl;
   final List<String> _languages;
   final LanguageIdMode _languageIdMode;
   final bool _debug;
@@ -47,6 +48,7 @@ class AzureSttService {
     LanguageIdMode languageIdMode = .atStart,
     bool debug = false,
     this.onAudioChunk,
+    this.customDeploymentUrl,
     required TranscriptionCubit cubit,
     required MicrophoneService micService,
     Duration? textClearTimeout,
@@ -105,7 +107,7 @@ class AzureSttService {
         }
 
         final uri = Uri.parse(
-          'wss://$_region.stt.speech.microsoft.com/stt/speech/universal/v2',
+          customDeploymentUrl ?? 'wss://$_region.stt.speech.microsoft.com/stt/speech/universal/v2',
         ).replace(queryParameters: queryParams);
         _channel = getWebSocketService().connect(uri);
       } else {
@@ -122,7 +124,7 @@ class AzureSttService {
         }
 
         final uri = Uri.parse(
-          'wss://$_region.stt.speech.microsoft.com/stt/speech/universal/v2',
+          customDeploymentUrl ?? 'wss://$_region.stt.speech.microsoft.com/stt/speech/universal/v2',
         ).replace(queryParameters: queryParams);
 
         _channel = getWebSocketService().connect(

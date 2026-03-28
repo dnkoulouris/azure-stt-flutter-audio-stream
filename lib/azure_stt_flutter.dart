@@ -18,6 +18,7 @@ class AzureSpeechToText {
   AzureSpeechToText({
     String? subscriptionKey,
     String? authorizationToken,
+    String? customDeploymentUrl,
     required String region,
     List<String> languages = const [Constants.defaultLang],
     LanguageIdMode languageIdMode = .atStart,
@@ -44,6 +45,7 @@ class AzureSpeechToText {
       cubit: _transcriptionCubit,
       micService: _microphoneService,
       textClearTimeout: textClearTimeout,
+      customDeploymentUrl: customDeploymentUrl
     );
   }
 
